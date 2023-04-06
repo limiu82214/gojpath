@@ -1,3 +1,5 @@
+// Package gojpath is a simple JSON path selector
+// Package gojpath 是一個簡單的 JSON path 選擇器
 package gojpath
 
 import (
@@ -35,7 +37,10 @@ func selectJSONNode(node interface{}, parts []string) interface{} {
 	}
 }
 
-func Get(jsonData interface{}, path string) interface{} {
+// Get return value which locate by JSON path from decoded JSON data
+//
+// Get 會從解碼後的 JSON 資料中，取得 JSON path 所指定的值
+func Get(jsonData interface{}, path string) (interface{}, error) {
 	if !strings.HasPrefix(path, "$") {
 		panic("first char must be $")
 	}
@@ -48,5 +53,5 @@ func Get(jsonData interface{}, path string) interface{} {
 	parts := strings.Split(path, ".")
 	parts = parts[1:] // remove first empty string
 
-	return selectJSONNode(jsonData, parts)
+	return selectJSONNode(jsonData, parts), nil
 }

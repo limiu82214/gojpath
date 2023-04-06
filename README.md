@@ -1,5 +1,6 @@
-[中文版](./README_ZH.md)
 # gojpath
+
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) [![codecov](https://codecov.io/gh/limiu82214/gojpath/branch/master/graph/badge.svg?token=0XAK9BB5WL)](https://codecov.io/gh/limiu82214/gojpath) [![Go Report Card](https://goreportcard.com/badge/github.com/limiu82214/gojpath)](https://goreportcard.com/report/github.com/limiu82214/gojpath) ![github actions workflow](https://github.com/limiu82214/gojpath/actions/workflows/go.yml/badge.svg)
 
 `gojpath` is a language for querying JSON data that is similar to XPath. In Golang, you can use the `Get` function to query JSON data.  
 The extent of support for this function can be found in this [link](https://learn.microsoft.com/en-us/azure/data-explorer/kusto/query/jsonpath).  
@@ -75,3 +76,7 @@ As the extent of support for the Get function is limited and some operations, su
 ## Other
 
 If you encounter any issues during use, please feel free to raise an issue on the GitHub project or contact me via email. If you find this project helpful, please consider giving it a star.
+
+## LICENSE
+
+[MIT License](./LICENSE)

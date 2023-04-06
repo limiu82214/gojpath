@@ -1,5 +1,8 @@
-[中文版](./README_ZH.md)
 # gojpath
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) [![codecov](https://codecov.io/gh/limiu82214/gojpath/branch/master/graph/badge.svg?token=0XAK9BB5WL)](https://codecov.io/gh/limiu82214/gojpath) [![Go Report Card](https://goreportcard.com/badge/github.com/limiu82214/gojpath)](https://goreportcard.com/report/github.com/limiu82214/gojpath) ![github actions workflow](https://github.com/limiu82214/gojpath/actions/workflows/go.yml/badge.svg)
+
+[中文版文檔](./README_ZH.md)
+
 
 `gojpath` 是一種用於在 JSON 數據中進行查詢的語言，它類似於 XPath。  
 在 Golang 中，可以使用 `Get` 函數對 JSON 數據進行查詢。  
@@ -74,3 +77,8 @@ func TestGet(t *testing.T) {
 
 ## 其他
 如果您在使用過程中有任何問題，歡迎在 GitHub 專案上發起一個 issue，或是透過 email 與我聯繫。如果您認為這個專案對您有所幫助，也請不吝給予一個 star。
+
+
+## 授權
+
+[MIT License](./LICENSE)
