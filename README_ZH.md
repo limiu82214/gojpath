@@ -1,14 +1,13 @@
+[中文版](./README_ZH.md)
 # gojpath
-JPath for Golang is a library that allows you to easily extract data from complex JSON strings using tags.
 
-## gojpath
+`gojpath` 是一種用於在 JSON 數據中進行查詢的語言，它類似於 XPath。  
+在 Golang 中，可以使用 `Get` 函數對 JSON 數據進行查詢。  
+該函數支援的程度參考自 [link](https://learn.microsoft.com/en-us/azure/data-explorer/kusto/query/jsonpath)  
 
-`gojpath` is a language for querying JSON data that is similar to XPath. In Golang, you can use the `Get` function to query JSON data.  
-The extent of support for this function can be found in this [link](https://learn.microsoft.com/en-us/azure/data-explorer/kusto/query/jsonpath).  
+## 使用方法
 
-## Usage
-
-Here is an example code that uses the `Get` function for JSON Path queries:
+以下是使用 `Get` 函數進行 JSON Path 查詢的示例代碼:
 
 ```go
 package main
@@ -49,7 +48,7 @@ func TestGet(t *testing.T) {
         t.Fatal(err)
     }
 
-    // Query with JSON Path
+    // 使用 JSON Path 進行查詢
     result := Get(jsonData, "$.store.book[0].title")
     assert.Equal(t, "Harry Potter and the Philosopher's Stone", result)
 
@@ -67,13 +66,11 @@ func TestGet(t *testing.T) {
 }
 ```
 
-In this example, the TestGet function uses the Get function for multiple JSON Path queries.  
-By comparing the returned values with the expected values, you can confirm the accuracy of the queries.
+在這個示例中，TestGet 函數使用 Get 函數進行了多次 JSON Path 查詢。  
+透過比較返回的值和預期的值，可以確認查詢的結果是否正確。
 
-## Considerations
+## 注意事項
+由於 Get 函數的支援程度有限，不支援某些操作，例如 * 操作符。在進行 JSON Path 查詢時，應該先確認使用的操作符和語法是否被 Get 函數所支援，以免產生錯誤的結果。
 
-As the extent of support for the Get function is limited and some operations, such as the * operator, are not supported, it is recommended to check if the operator and syntax used in JSON Path queries are supported by the Get function to avoid generating incorrect results.
-
-## Other
-
-If you encounter any issues during use, please feel free to raise an issue on the GitHub project or contact me via email. If you find this project helpful, please consider giving it a star.
+## 其他
+如果您在使用過程中有任何問題，歡迎在 GitHub 專案上發起一個 issue，或是透過 email 與我聯繫。如果您認為這個專案對您有所幫助，也請不吝給予一個 star。
