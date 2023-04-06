@@ -1,6 +1,8 @@
 # gojpath
 
-[![Go Reference](https://pkg.go.dev/badge/github.com/limiu82214/gojpath.svg)](https://pkg.go.dev/github.com/limiu82214/gojpath) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) [![codecov](https://codecov.io/gh/limiu82214/gojpath/branch/master/graph/badge.svg?token=0XAK9BB5WL)](https://codecov.io/gh/limiu82214/gojpath) [![Go Report Card](https://goreportcard.com/badge/github.com/limiu82214/gojpath)](https://goreportcard.com/report/github.com/limiu82214/gojpath) ![github actions workflow](https://github.com/limiu82214/gojpath/actions/workflows/go.yml/badge.svg)
+![GitHub tag (latest by date)](https://img.shields.io/github/v/tag/limiu82214/gojpath?label=version) [![Go Reference](https://pkg.go.dev/badge/github.com/limiu82214/gojpath.svg)](https://pkg.go.dev/github.com/limiu82214/gojpath) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) [![codecov](https://codecov.io/gh/limiu82214/gojpath/branch/master/graph/badge.svg?token=0XAK9BB5WL)](https://codecov.io/gh/limiu82214/gojpath) [![Go Report Card](https://goreportcard.com/badge/github.com/limiu82214/gojpath)](https://goreportcard.com/report/github.com/limiu82214/gojpath) ![github actions workflow](https://github.com/limiu82214/gojpath/actions/workflows/go.yml/badge.svg)
+
+[中文版文檔](./README_ZH.md)
 
 `gojpath` is a language for querying JSON data that is similar to XPath. In Golang, you can use the `Get` function to query JSON data.  
 The extent of support for this function can be found in this [link](https://learn.microsoft.com/en-us/azure/data-explorer/kusto/query/jsonpath).  

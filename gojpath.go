@@ -1,39 +1,74 @@
 // Package gojpath is a simple JSON path selector
+//
 // Package gojpath 是一個簡單的 JSON path 選擇器
 package gojpath
 
 import (
+	"errors"
 	"strconv"
 	"strings"
 )
 
-func selectJSONNode(node interface{}, parts []string) interface{} {
+// ErrArrayIndexOutOfRange is error when array index out of range
+//
+// ErrArrayIndexOutOfRange 是當陣列索引超出範圍時的錯誤
+var ErrArrayIndexOutOfRange = errors.New("array index out of range")
+
+// ErrArrayIndexNotNumber is error when array index is not number
+//
+// ErrArrayIndexNotNumber 是當陣列索引不是數字時的錯誤
+var ErrArrayIndexNotNumber = errors.New("array index not number")
+
+// ErrObjectKeyNotFound is error when object key not found
+//
+// ErrObjectKeyNotFound 是當物件鍵找不到時的錯誤
+var ErrObjectKeyNotFound = errors.New("object key not found")
+
+// ErrFirstCharMustBeDollar is error when first char of JSON path is not $
+//
+// ErrFirstCharMustBeDollar 是當 JSON path 的第一個字元不是 $ 時的錯誤
+var ErrFirstCharMustBeDollar = errors.New("first char must be $")
+
+// ErrNodeIsNotObjectOrArray is error when node is not object or array
+//
+// ErrNodeIsNotObjectOrArray 是當節點不是物件或陣列時的錯誤
+var ErrNodeIsNotObjectOrArray = errors.New("node is not object or array")
+
+func selectJSONNode(node interface{}, parts []string) (interface{}, error) {
 	if len(parts) == 0 {
-		return node
+		return node, nil
 	}
 
 	target := parts[0]
 
 	switch node := node.(type) {
 	case map[string]interface{}:
+		if _, ok := node[target]; !ok {
+			return nil, ErrObjectKeyNotFound
+		}
+
 		if len(parts[1:]) != 0 {
 			return selectJSONNode(node[target], parts[1:])
 		}
 
-		return node[target]
+		return node[target], nil
 	case []interface{}:
 		index, err := strconv.Atoi(target)
 		if err != nil {
-			return nil
+			return nil, ErrArrayIndexNotNumber
+		}
+
+		if index >= len(node) || index < 0 {
+			return nil, ErrArrayIndexOutOfRange
 		}
 
 		if len(parts[1:]) == 0 {
-			return node[index]
+			return node[index], nil
 		}
 
 		return selectJSONNode(node[index], parts[1:])
 	default:
-		return nil
+		return nil, ErrNodeIsNotObjectOrArray
 	}
 }
 
@@ -42,7 +77,7 @@ func selectJSONNode(node interface{}, parts []string) interface{} {
 // Get 會從解碼後的 JSON 資料中，取得 JSON path 所指定的值
 func Get(jsonData interface{}, path string) (interface{}, error) {
 	if !strings.HasPrefix(path, "$") {
-		panic("first char must be $")
+		return nil, ErrFirstCharMustBeDollar
 	}
 
 	path = path[1:]
@@ -53,5 +88,5 @@ func Get(jsonData interface{}, path string) (interface{}, error) {
 	parts := strings.Split(path, ".")
 	parts = parts[1:] // remove first empty string
 
-	return selectJSONNode(jsonData, parts), nil
+	return selectJSONNode(jsonData, parts)
 }
