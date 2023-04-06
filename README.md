@@ -49,19 +49,19 @@ func TestGet(t *testing.T) {
     }
 
     // Query with JSON Path
-    result := Get(jsonData, "$.store.book[0].title")
+    result, _ := Get(jsonData, "$.store.book[0].title")
     assert.Equal(t, "Harry Potter and the Philosopher's Stone", result)
 
-    result = Get(jsonData, "$['store']['book'][0]['title']")
+    result, _ = Get(jsonData, "$['store']['book'][0]['title']")
     assert.Equal(t, "Harry Potter and the Philosopher's Stone", result)
 
-    result = Get(jsonData, "$.store.bicycle.color")
+    result, _ = Get(jsonData, "$.store.bicycle.color")
     assert.Equal(t, "red", result)
 
-    result = Get(jsonData, "$.store.book[1].author")
+    result, _ = Get(jsonData, "$.store.book[1].author")
     assert.Equal(t, "J.K. Rowling", result)
 
-    result = Get(jsonData, "$.store['book'][1].price")
+    result, _ = Get(jsonData, "$.store['book'][1].price")
     assert.Equal(t, 9.99, result)
 }
 ```
