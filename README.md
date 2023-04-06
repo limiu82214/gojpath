@@ -1,7 +1,5 @@
+[中文版](./README_ZH.md)
 # gojpath
-JPath for Golang is a library that allows you to easily extract data from complex JSON strings using tags.
-
-## gojpath
 
 `gojpath` is a language for querying JSON data that is similar to XPath. In Golang, you can use the `Get` function to query JSON data.  
 The extent of support for this function can be found in this [link](https://learn.microsoft.com/en-us/azure/data-explorer/kusto/query/jsonpath).  
