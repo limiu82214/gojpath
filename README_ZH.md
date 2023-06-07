@@ -70,6 +70,56 @@ func TestGet(t *testing.T) {
 在這個示例中，TestGet 函數使用 Get 函數進行了多次 JSON Path 查詢。  
 透過比較返回的值和預期的值，可以確認查詢的結果是否正確。
 
+### 零值，比較 Nil & Exist
+您可以使用此套件來檢查零值。
+
+有時候，我們使用 Gin 框架的 Bind 方法將請求的 JSON 映射到結構體，像這樣：
+
+```go
+    req := RegisterUserReq{}
+    err := c.BindJSON(&req)
+    if err != nil {
+        return err
+    }
+```
+
+通常，我們使用 Gin 內建的驗證器來驗證資料。然而，驗證器可能無法檢測到以下的情況：
+
+* 零值 或者客戶端沒有輸入。
+* 零值 或者客戶端明確地輸入 零值。
+
+我們希望判斷一個值是零值還是在請求中根本不存在。以下是解決這個問題的方法：
+
+```go
+jsonString := c.Request.body
+var jsonData interface{}
+
+err := json.Unmarshal([]byte(jsonString), &jsonData)
+if err != nil {
+    t.Fatal(err)
+}
+
+// 客戶端未輸入
+isExist, err := IsExist("$.store['book'][1].price")
+if !isExist {
+    // ...
+}
+
+// 客戶端輸入零值
+isNil, err := IsNil("$.store['book'][1].price")
+if isNil {
+    // ...
+}
+
+// 如果位於 JSON 路徑的值是 nil 或不存在，則 IsBindNil 返回 true
+// 這意味著結構體的值會被 json 套件填充為零值。
+isBindNil, err := IsBindNil("$.store['book'][1].price")
+if isBindNil {
+    // ...
+}
+```
+注意：我們使用這個是因為我們不喜歡在結構體中使用指標，因為他們使我們的程式碼變得更複雜。
+
 ## 注意事項
 由於 Get 函數的支援程度有限，不支援某些操作，例如 * 操作符。在進行 JSON Path 查詢時，應該先確認使用的操作符和語法是否被 Get 函數所支援，以免產生錯誤的結果。
 

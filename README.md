@@ -71,6 +71,58 @@ func TestGet(t *testing.T) {
 In this example, the TestGet function uses the Get function for multiple JSON Path queries.  
 By comparing the returned values with the expected values, you can confirm the accuracy of the queries.
 
+### Zero Value, Compare Nil & Exist
+
+You can use this package to check for zero values.
+
+Sometimes, we map a request JSON to a struct using the Bind method of the Gin framework, like this:
+
+```go
+    req := RegisterUserReq{}
+    err := c.BindJSON(&req)
+    if err != nil {
+        return err
+    }
+```
+
+Usually, we verify the data using the built-in validator in Gin. However, the validator may not be able to detect the following situation:
+
+* `zero value` or just client did not input it.
+* `zero value` or client explicitly inputted `zero value`.
+
+We want to determine whether a value is a zero value or simply not present in the request. Here is the solution for this:
+
+```go
+jsonString := c.Request.body
+var jsonData interface{}
+
+err := json.Unmarshal([]byte(jsonString), &jsonData)
+if err != nil {
+    t.Fatal(err)
+}
+
+// client not input it
+isExist, err := IsExist("$.store['book'][1].price")
+if !isExist {
+    // ...
+}
+
+// client input zero value
+isNil, err := IsNil("$.store['book'][1].price")
+if isNil {
+    // ...
+}
+
+// IsBindNil return true if value which locate by JSON path is nil or not exist
+// It mean the value of struct will be fill with zero value with json package.
+isBindNil, err := IsBindNil("$.store['book'][1].price")
+if isBindNil {
+    // ...
+}
+```
+
+Notice: We use this because we dislike using pointers in the struct, as they make our code more complex.
+
 ## Considerations
 
 As the extent of support for the Get function is limited and some operations, such as the * operator, are not supported, it is recommended to check if the operator and syntax used in JSON Path queries are supported by the Get function to avoid generating incorrect results.

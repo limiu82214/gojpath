@@ -106,3 +106,206 @@ func TestNodeErr(t *testing.T) {
 	_, err = Get(jsonData, "$.")
 	assert.ErrorIs(t, err, ErrNodeIsNotObjectOrArray)
 }
+
+func TestIsNil(t *testing.T) {
+	jsonString := `{
+        "store": {
+            "book": [
+                {
+                    "title": "Harry Potter and the Philosopher's Stone",
+                    "author": "J.K. Rowling",
+                    "price": 7.99
+                },
+                {
+                    "title": "Harry Potter and the Chamber of Secrets",
+                    "author": "J.K. Rowling",
+                    "price": 9.99
+                }
+            ],
+            "bicycle": {
+                "color": "red",
+                "price": 19.95
+            },
+			"null_data": null
+        }
+    }`
+
+	var jsonData interface{}
+
+	err := json.Unmarshal([]byte(jsonString), &jsonData)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// function test
+	isNil, err := IsNil(jsonData, "$.store.null_data")
+	assert.Nil(t, err)
+	assert.True(t, isNil)
+
+	isNil, err = IsNil(jsonData, "$.store.book[0].title")
+	assert.Nil(t, err)
+	assert.False(t, isNil)
+
+	// other test
+	isNil, err = IsNil(jsonData, "$.notexist")
+	assert.ErrorIs(t, err, ErrObjectKeyNotFound)
+	assert.False(t, isNil)
+
+	isNil, err = IsNil(jsonData, "$.store")
+	assert.Nil(t, err)
+	assert.False(t, isNil)
+
+	isNil, err = IsNil(jsonData, "$.store.book[0].deep.notexist")
+	assert.ErrorIs(t, err, ErrObjectKeyNotFound)
+	assert.False(t, isNil)
+
+	isNil, err = IsNil(jsonData, "$.store.book[fail].title")
+	assert.ErrorIs(t, err, ErrArrayIndexNotNumber)
+	assert.False(t, isNil)
+
+	isNil, err = IsNil(jsonData, ".store")
+	assert.ErrorIs(t, err, ErrFirstCharMustBeDollar)
+	assert.False(t, isNil)
+}
+
+func TestIsExist(t *testing.T) {
+	jsonString := `{
+        "store": {
+            "book": [
+                {
+                    "title": "Harry Potter and the Philosopher's Stone",
+                    "author": "J.K. Rowling",
+                    "price": 7.99
+                },
+                {
+                    "title": "Harry Potter and the Chamber of Secrets",
+                    "author": "J.K. Rowling",
+                    "price": 9.99
+                }
+            ],
+            "bicycle": {
+                "color": "red",
+                "price": 19.95
+            },
+			"null_data": null
+        }
+    }`
+
+	var jsonData interface{}
+
+	err := json.Unmarshal([]byte(jsonString), &jsonData)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// function test
+	isExist, err := IsExist(jsonData, "$.notexist")
+	assert.Nil(t, err)
+	assert.False(t, isExist)
+
+	isExist, err = IsExist(jsonData, "$.store.book[0].title")
+	assert.Nil(t, err)
+	assert.True(t, isExist)
+
+	// other test
+	isExist, err = IsExist(jsonData, "$.store.null_data")
+	assert.Nil(t, err)
+	assert.True(t, isExist)
+
+	isExist, err = IsExist(jsonData, "$.store")
+	assert.Nil(t, err)
+	assert.True(t, isExist)
+
+	isExist, err = IsExist(jsonData, "$.store.book[0].deep.notexist")
+	assert.Nil(t, err)
+	assert.False(t, isExist)
+
+	isExist, err = IsExist(jsonData, "$.store.book[fail].title")
+	assert.ErrorIs(t, err, ErrArrayIndexNotNumber)
+	assert.False(t, isExist)
+
+	isExist, err = IsExist(jsonData, ".store")
+	assert.ErrorIs(t, err, ErrFirstCharMustBeDollar)
+	assert.False(t, isExist)
+}
+
+func TestIsBindNil(t *testing.T) {
+	jsonString := `{
+        "store": {
+            "book": [
+                {
+                    "title": "Harry Potter and the Philosopher's Stone",
+                    "author": "J.K. Rowling",
+                    "price": 7.99
+                },
+                {
+                    "title": "Harry Potter and the Chamber of Secrets",
+                    "author": "J.K. Rowling",
+                    "price": 9.99
+                }
+            ],
+            "bicycle": {
+                "color": "red",
+                "price": 19.95
+            },
+			"null_data": null
+        }
+    }`
+
+	var jsonData interface{}
+
+	err := json.Unmarshal([]byte(jsonString), &jsonData)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// function test
+	isBindNil, err := IsBindNil(jsonData, "$.notexist")
+	assert.Nil(t, err)
+	assert.True(t, isBindNil)
+
+	isExist, _ := IsExist(jsonData, "$.notexist")
+	isNil, _ := IsNil(jsonData, "$.notexist")
+	assert.Equal(t, !isExist || isNil, isBindNil)
+
+	isBindNil, err = IsBindNil(jsonData, "$.store.book[0].title")
+	assert.Nil(t, err)
+	assert.False(t, isBindNil)
+
+	isExist, _ = IsExist(jsonData, "$.store.book[0].title")
+	isNil, _ = IsNil(jsonData, "$.store.book[0].title")
+	assert.Equal(t, !isExist || isNil, isBindNil)
+
+	// other test
+	isBindNil, err = IsBindNil(jsonData, "$.store.null_data")
+	assert.Nil(t, err)
+	assert.True(t, isBindNil)
+
+	isExist, _ = IsExist(jsonData, "$.store.null_data")
+	isNil, _ = IsNil(jsonData, "$.store.null_data")
+	assert.Equal(t, !isExist || isNil, isBindNil)
+
+	isBindNil, err = IsBindNil(jsonData, "$.store")
+	assert.Nil(t, err)
+	assert.False(t, isBindNil)
+
+	isExist, _ = IsExist(jsonData, "$.store")
+	isNil, _ = IsNil(jsonData, "$.store")
+	assert.Equal(t, !isExist || isNil, isBindNil)
+
+	isBindNil, err = IsBindNil(jsonData, "$.store.book[0].deep.notexist")
+	assert.Nil(t, err)
+	assert.True(t, isBindNil)
+
+	isExist, _ = IsExist(jsonData, "$.store.book[0].deep.notexist")
+	isNil, _ = IsNil(jsonData, "$.store.book[0].deep.notexist")
+	assert.Equal(t, !isExist || isNil, isBindNil)
+
+	isBindNil, err = IsBindNil(jsonData, "$.store.book[fail].title")
+	assert.ErrorIs(t, err, ErrArrayIndexNotNumber)
+	assert.False(t, isBindNil)
+
+	isBindNil, err = IsBindNil(jsonData, ".store")
+	assert.ErrorIs(t, err, ErrFirstCharMustBeDollar)
+	assert.False(t, isBindNil)
+}
