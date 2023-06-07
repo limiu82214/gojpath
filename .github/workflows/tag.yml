@@ -1,0 +1,25 @@
+name: Tag
+
+on:
+  push:
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+
+    - name: Check out code
+      uses: actions/checkout@v3
+
+    - name: Set up Go
+      uses: actions/setup-go@v3
+      with:
+        go-version: 1.19
+
+    - name: Run coverage
+      run: go test -race -coverprofile=coverage.out -covermode=atomic
+
+    - name: Upload coverage reports to Codecov
+      uses: codecov/codecov-action@v3
