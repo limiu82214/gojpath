@@ -90,3 +90,58 @@ func Get(jsonData interface{}, path string) (interface{}, error) {
 
 	return selectJSONNode(jsonData, parts)
 }
+
+// IsNil return true if value which locate by JSON path is nil
+//
+// IsNil 會回傳 JSON path 所指定的值是否為 nil
+func IsNil(jsonData interface{}, path string) (bool, error) {
+	v, err := Get(jsonData, path)
+	if err == nil && v == nil {
+		return true, nil
+	} else if err != nil {
+		return false, err
+	}
+
+	return false, nil
+}
+
+// IsExist return true if value which locate by JSON path is exist
+//
+// IsExist 會回傳 JSON path 所指定的值是否存在
+func IsExist(jsonData interface{}, path string) (bool, error) {
+	_, err := Get(jsonData, path)
+	if errors.Is(err, ErrObjectKeyNotFound) || errors.Is(err, ErrArrayIndexOutOfRange) {
+		return false, nil
+	} else if err != nil {
+		return false, err
+	}
+
+	return true, nil
+}
+
+// IsBindNil return true if value which locate by JSON path is nil or not exist.
+// It mean the value of struct will be fill with zero value with json package.
+//
+// IsBindNil 會回傳 JSON path 所指定的值是否為 nil 或不存在
+// 這意味著該 struct 的值將會被填入零值
+func IsBindNil(jsonData interface{}, path string) (bool, error) {
+	isExist, err := IsExist(jsonData, path)
+	if err != nil {
+		return false, err
+	}
+
+	if !isExist {
+		return true, nil
+	}
+
+	isNil, err := IsNil(jsonData, path)
+	if err != nil {
+		return false, err
+	}
+
+	if isNil {
+		return true, nil
+	}
+
+	return false, nil
+}
