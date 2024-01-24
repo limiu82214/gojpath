@@ -2,6 +2,9 @@ package gojpath
 
 import (
 	"encoding/json"
+	"io"
+	"log"
+	"os"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -260,7 +263,7 @@ func TestIsBindNil(t *testing.T) {
 	}
 
 	// function test
-	isBindNil, err := IsBindNil(jsonData, "$.notexist")
+	isBindNil, err := IsNilOrUnset(jsonData, "$.notexist")
 	assert.Nil(t, err)
 	assert.True(t, isBindNil)
 
@@ -268,7 +271,7 @@ func TestIsBindNil(t *testing.T) {
 	isNil, _ := IsNil(jsonData, "$.notexist")
 	assert.Equal(t, !isExist || isNil, isBindNil)
 
-	isBindNil, err = IsBindNil(jsonData, "$.store.book[0].title")
+	isBindNil, err = IsNilOrUnset(jsonData, "$.store.book[0].title")
 	assert.Nil(t, err)
 	assert.False(t, isBindNil)
 
@@ -277,7 +280,7 @@ func TestIsBindNil(t *testing.T) {
 	assert.Equal(t, !isExist || isNil, isBindNil)
 
 	// other test
-	isBindNil, err = IsBindNil(jsonData, "$.store.null_data")
+	isBindNil, err = IsNilOrUnset(jsonData, "$.store.null_data")
 	assert.Nil(t, err)
 	assert.True(t, isBindNil)
 
@@ -285,7 +288,7 @@ func TestIsBindNil(t *testing.T) {
 	isNil, _ = IsNil(jsonData, "$.store.null_data")
 	assert.Equal(t, !isExist || isNil, isBindNil)
 
-	isBindNil, err = IsBindNil(jsonData, "$.store")
+	isBindNil, err = IsNilOrUnset(jsonData, "$.store")
 	assert.Nil(t, err)
 	assert.False(t, isBindNil)
 
@@ -293,7 +296,7 @@ func TestIsBindNil(t *testing.T) {
 	isNil, _ = IsNil(jsonData, "$.store")
 	assert.Equal(t, !isExist || isNil, isBindNil)
 
-	isBindNil, err = IsBindNil(jsonData, "$.store.book[0].deep.notexist")
+	isBindNil, err = IsNilOrUnset(jsonData, "$.store.book[0].deep.notexist")
 	assert.Nil(t, err)
 	assert.True(t, isBindNil)
 
@@ -301,11 +304,139 @@ func TestIsBindNil(t *testing.T) {
 	isNil, _ = IsNil(jsonData, "$.store.book[0].deep.notexist")
 	assert.Equal(t, !isExist || isNil, isBindNil)
 
-	isBindNil, err = IsBindNil(jsonData, "$.store.book[fail].title")
+	isBindNil, err = IsNilOrUnset(jsonData, "$.store.book[fail].title")
 	assert.ErrorIs(t, err, ErrArrayIndexNotNumber)
 	assert.False(t, isBindNil)
 
-	isBindNil, err = IsBindNil(jsonData, ".store")
+	isBindNil, err = IsNilOrUnset(jsonData, ".store")
 	assert.ErrorIs(t, err, ErrFirstCharMustBeDollar)
 	assert.False(t, isBindNil)
+}
+
+func TestBoolTrue(t *testing.T) {
+	testIsNilRst(t, `{"Field2": true}`, `$.Field2`, false, nil)
+	testIsExistRst(t, `{"Field2": true}`, `$.Field2`, true, nil)
+	testIsBindNilRst(t, `{"Field2": true}`, `$.Field2`, false, nil)
+}
+func TestBoolFalse(t *testing.T) {
+	testIsNilRst(t, `{"Field2": false}`, `$.Field2`, false, nil)
+	testIsExistRst(t, `{"Field2": false}`, `$.Field2`, true, nil)
+	testIsBindNilRst(t, `{"Field2": false}`, `$.Field2`, false, nil)
+}
+
+func TestBoolNil(t *testing.T) {
+	testIsNilRst(t, `{"Field2": null}`, `$.Field2`, true, nil)
+	testIsExistRst(t, `{"Field2": null}`, `$.Field2`, true, nil)
+	testIsBindNilRst(t, `{"Field2": null}`, `$.Field2`, true, nil)
+}
+func TestBoolNotExist(t *testing.T) {
+	testIsNilRst(t, `{}`, `$.Field2`, false, ErrObjectKeyNotFound)
+	testIsExistRst(t, `{}`, `$.Field2`, false, nil)
+	testIsBindNilRst(t, `{}`, `$.Field2`, true, nil)
+}
+
+func testIsNilRst(t *testing.T, jsonString string, path string, expectIsNil bool, expectErr error) {
+	T := struct {
+		Field2 bool
+	}{}
+	err := json.Unmarshal([]byte(jsonString), &T)
+	assert.Nil(t, err)
+
+	var jsonData interface{}
+	err = json.Unmarshal([]byte(jsonString), &jsonData)
+	assert.Nil(t, err)
+
+	isNil, err := IsNil(jsonData, path)
+	assert.Equal(t, expectIsNil, isNil)
+	assert.ErrorIs(t, err, expectErr)
+}
+
+func testIsExistRst(t *testing.T, jsonString string, path string, expectIsExist bool, expectErr error) {
+	T := struct {
+		Field2 bool
+	}{}
+	err := json.Unmarshal([]byte(jsonString), &T)
+	assert.Nil(t, err)
+
+	var jsonData interface{}
+	err = json.Unmarshal([]byte(jsonString), &jsonData)
+	assert.Nil(t, err)
+
+	isExist, err := IsExist(jsonData, path)
+	assert.Equal(t, expectIsExist, isExist)
+	assert.ErrorIs(t, err, expectErr)
+}
+
+func testIsBindNilRst(t *testing.T, jsonString string, path string, expectIsBindNil bool, expectErr error) {
+	T := struct {
+		Field2 bool
+	}{}
+	err := json.Unmarshal([]byte(jsonString), &T)
+	assert.Nil(t, err)
+
+	var jsonData interface{}
+	err = json.Unmarshal([]byte(jsonString), &jsonData)
+	assert.Nil(t, err)
+
+	isBindNil, err := IsNilOrUnset(jsonData, path)
+	assert.Equal(t, expectIsBindNil, isBindNil)
+	assert.ErrorIs(t, err, expectErr)
+}
+
+func TestBehave(t *testing.T) {
+	isPrintToStd := false
+	showResult(`{"Field2": true}`, isPrintToStd)
+	showResult(`{"Field2": false}`, isPrintToStd)
+	showResult(`{"Field2": null}`, isPrintToStd)
+	showResult(`{}`, isPrintToStd)
+	//showResult(`{"Field2": undefined}`, isPrintToStd) // undefined is not a valid json
+}
+
+func showResult(jsonString string, printToStd bool) {
+	var logger *log.Logger
+
+	if printToStd {
+		logger = log.New(os.Stdout, "", log.LstdFlags)
+	} else {
+		logger = log.New(io.Discard, "", log.LstdFlags)
+	}
+
+	logger.Println("jsonString:", jsonString)
+
+	T := struct {
+		Field2 bool
+	}{}
+	err := json.Unmarshal([]byte(jsonString), &T)
+	if err != nil {
+		logger.Printf("json unmarshal error: %v\n", err)
+	}
+	logger.Printf("json unmarshal Value: %v\n", T.Field2)
+
+	var jsonData interface{}
+	err = json.Unmarshal([]byte(jsonString), &jsonData)
+	if err != nil {
+		logger.Printf("Unmarshal error: %v", err)
+	}
+
+	isNil, err := IsNil(jsonData, `$.Field2`)
+	if err != nil {
+		logger.Printf("IsNil error: %v\n", err)
+	} else {
+		logger.Printf("IsNil: %v\n", isNil)
+	}
+
+	isExist, err := IsExist(jsonData, `$.Field2`)
+	if err != nil {
+		logger.Printf("IsExist error: %v\n", err)
+	} else {
+		logger.Printf("IsExist: %v\n", isExist)
+	}
+
+	isBindNil, err := IsNilOrUnset(jsonData, `$.Field2`)
+	if err != nil {
+		logger.Printf("IsNilOrUnset error: %v\n", err)
+	} else {
+		logger.Printf("IsNilOrUnset: %v\n", isBindNil)
+	}
+	logger.Println()
 }

@@ -111,14 +111,44 @@ if isNil {
     // ...
 }
 
-// 如果位於 JSON 路徑的值是 nil 或不存在，則 IsBindNil 返回 true
+// 如果位於 JSON 路徑的值是 nil 或不存在，則 IsNilOrUnset 返回 true
 // 這意味著結構體的值會被 json 套件填充為零值。
-isBindNil, err := IsBindNil("$.store['book'][1].price")
+isBindNil, err := IsNilOrUnset("$.store['book'][1].price")
 if isBindNil {
     // ...
 }
 ```
 注意：我們使用這個是因為我們不喜歡在結構體中使用指標，因為他們使我們的程式碼變得更複雜。
+
+## 函式行為範例 
+```
+// jsonString: {"Field2": true}
+// json unmarshal Value: true
+// IsNil: false
+// IsExist: true
+// IsNilOrUnset: false
+
+// jsonString: {"Field2": false}
+// json unmarshal Value: false
+// IsNil: false
+// IsExist: true
+// IsNilOrUnset: false
+
+// jsonString: {"Field2": null}
+// json unmarshal Value: false
+// IsNil: true
+// IsExist: true
+// IsNilOrUnset: true
+
+// jsonString: {}
+// json unmarshal Value: false
+// IsNil error: object key not found
+// IsExist: false
+// IsNilOrUnset: true
+ 
+// this is not a valid json, so parse will return error
+// jsonString: {"Field2": undefined}
+```
 
 ## 注意事項
 由於 Get 函數的支援程度有限，不支援某些操作，例如 * 操作符。在進行 JSON Path 查詢時，應該先確認使用的操作符和語法是否被 Get 函數所支援，以免產生錯誤的結果。
