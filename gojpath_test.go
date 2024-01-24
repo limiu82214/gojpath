@@ -2,7 +2,7 @@ package gojpath
 
 import (
 	"encoding/json"
-	"io/ioutil"
+	"io"
 	"log"
 	"os"
 	"testing"
@@ -398,7 +398,7 @@ func showResult(jsonString string, printToStd bool) {
 	if printToStd {
 		logger = log.New(os.Stdout, "", log.LstdFlags)
 	} else {
-		logger = log.New(ioutil.Discard, "", log.LstdFlags)
+		logger = log.New(io.Discard, "", log.LstdFlags)
 	}
 
 	logger.Println("jsonString:", jsonString)
@@ -406,11 +406,14 @@ func showResult(jsonString string, printToStd bool) {
 	T := struct {
 		Field2 bool
 	}{}
-	json.Unmarshal([]byte(jsonString), &T)
+	err := json.Unmarshal([]byte(jsonString), &T)
+	if err != nil {
+		logger.Printf("json unmarshal error: %v\n", err)
+	}
 	logger.Printf("json unmarshal Value: %v\n", T.Field2)
 
 	var jsonData interface{}
-	err := json.Unmarshal([]byte(jsonString), &jsonData)
+	err = json.Unmarshal([]byte(jsonString), &jsonData)
 	if err != nil {
 		logger.Printf("Unmarshal error: %v", err)
 	}
