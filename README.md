@@ -113,15 +113,44 @@ if isNil {
     // ...
 }
 
-// IsBindNil return true if value which locate by JSON path is nil or not exist
+// IsNilOrUnset return true if value which locate by JSON path is nil or not exist
 // It mean the value of struct will be fill with zero value with json package.
-isBindNil, err := IsBindNil("$.store['book'][1].price")
+isBindNil, err := IsNilOrUnset("$.store['book'][1].price")
 if isBindNil {
     // ...
 }
 ```
-
 Notice: We use this because we dislike using pointers in the struct, as they make our code more complex.
+
+## Function Behavior Example
+```
+// jsonString: {"Field2": true}
+// json unmarshal Value: true
+// IsNil: false
+// IsExist: true
+// IsNilOrUnset: false
+
+// jsonString: {"Field2": false}
+// json unmarshal Value: false
+// IsNil: false
+// IsExist: true
+// IsNilOrUnset: false
+
+// jsonString: {"Field2": null}
+// json unmarshal Value: false
+// IsNil: true
+// IsExist: true
+// IsNilOrUnset: true
+
+// jsonString: {}
+// json unmarshal Value: false
+// IsNil error: object key not found
+// IsExist: false
+// IsNilOrUnset: true
+ 
+// this is not a valid json, so parse will return error
+// jsonString: {"Field2": undefined}
+```
 
 ## Considerations
 

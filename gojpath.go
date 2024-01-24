@@ -119,12 +119,12 @@ func IsExist(jsonData interface{}, path string) (bool, error) {
 	return true, nil
 }
 
-// IsBindNil return true if value which locate by JSON path is nil or not exist.
+// IsNilOrUnset return true if value which locate by JSON path is nil or not exist.
 // It mean the value of struct will be fill with zero value with json package.
 //
-// IsBindNil 會回傳 JSON path 所指定的值是否為 nil 或不存在
+// IsNilOrUnset 會回傳 JSON path 所指定的值是否為 nil 或不存在
 // 這意味著該 struct 的值將會被填入零值
-func IsBindNil(jsonData interface{}, path string) (bool, error) {
+func IsNilOrUnset(jsonData interface{}, path string) (bool, error) {
 	isExist, err := IsExist(jsonData, path)
 	if err != nil {
 		return false, err
